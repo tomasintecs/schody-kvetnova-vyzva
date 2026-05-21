@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Květnová výzva — po schodech</title>
+<style>
+:root { color-scheme: light; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background: linear-gradient(160deg,#e0f2fe 0%,#f0f9ff 45%,#f8fafc 100%); min-height: 100vh; color: #1e293b; }
+.container { max-width: 860px; margin: 0 auto; padding: 28px 20px 48px; }
+.header { text-align: center; margin-bottom: 26px; }
+.stair-deco { display: flex; gap: 3px; align-items: flex-end; justify-content: center; margin-bottom: 10px; }
+.stair-step { background: linear-gradient(135deg,#bae6fd,#7dd3fc); border-radius: 3px 3px 0 0; }
+.header h1 { font-size: 1.75rem; font-weight: 800; color: #0f172a; letter-spacing: -.5px; }
+.header p  { color: #64748b; margin-top: 5px; font-size: .88rem; }
+.year-tabs { display: flex; gap: 12px; justify-content: center; margin-bottom: 22px; flex-wrap: wrap; }
+.year-tab { padding: 10px 28px; border-radius: 50px; border: 2px solid #cbd5e1; background: white; cursor: pointer; font-weight: 600; transition: all .2s; text-align: center; line-height: 1.3; min-width: 140px; }
+.year-tab .yr  { font-size: 1.3rem; font-weight: 800; display: block; }
+.year-tab .inf { font-size: .72rem; color: #94a3b8; display: block; font-weight: 500; }
+.year-tab.active { background: linear-gradient(135deg,#0ea5e9,#0284c7); border-color: transparent; color: white; box-shadow: 0 4px 16px rgba(14,165,233,.38); }
+.year-tab.active .inf { color: rgba(255,255,255,.78); }
+.hero-kpi { background: linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%); border-radius: 20px; padding: 24px 28px; margin-bottom: 16px; display: flex; align-items: center; gap: 20px; box-shadow: 0 6px 24px rgba(14,165,233,.28); color: white; position: relative; overflow: hidden; }
+.hero-kpi::after { content: '↑'; position: absolute; right: 24px; font-size: 6rem; font-weight: 900; opacity: .08; top: -10px; line-height: 1; }
+.hero-icon { font-size: 2.6rem; flex-shrink: 0; }
+.hero-text { flex: 1; }
+.hero-value { font-size: 2.6rem; font-weight: 900; line-height: 1; letter-spacing: -1px; }
+.hero-label { font-size: .82rem; opacity: .85; margin-top: 4px; font-weight: 500; }
+.hero-sub   { font-size: .78rem; opacity: .65; margin-top: 2px; }
+.progress-bar-wrap { background: white; border-radius: 14px; padding: 14px 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.07); border: 1px solid #f1f5f9; }
+.progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.progress-title  { font-size: .78rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; }
+.progress-days   { font-size: .78rem; font-weight: 700; color: #0ea5e9; }
+.progress-track  { height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; }
+.progress-fill   { height: 100%; background: linear-gradient(90deg,#38bdf8,#0ea5e9); border-radius: 99px; }
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
+.stat { background: white; border-radius: 14px; padding: 16px 12px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.07); border: 1px solid #f1f5f9; }
+.stat-num { font-size: 1.8rem; font-weight: 800; color: #0ea5e9; line-height: 1; }
+.stat-lbl { font-size: .7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-top: 5px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width:560px) { .grid { grid-template-columns: 1fr; } }
+.card { background: white; border-radius: 18px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,.07); border: 1px solid #f1f5f9; }
+.card-title { font-size: .76rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 20px; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 6px; margin-bottom: 16px; height: 148px; }
+.pod-slot { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 86px; }
+.pod-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: .78rem; color: white; margin-bottom: 4px; flex-shrink: 0; }
+.pod-name { font-size: .69rem; font-weight: 600; text-align: center; color: #334155; margin-bottom: 2px; line-height: 1.2; word-break: break-word; max-width: 82px; }
+.pod-val  { font-size: .8rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; }
+.pod-blk  { width: 100%; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+.r1 .pod-avatar { background: linear-gradient(135deg,#f59e0b,#d97706); }
+.r2 .pod-avatar { background: linear-gradient(135deg,#94a3b8,#64748b); }
+.r3 .pod-avatar { background: linear-gradient(135deg,#cd7f32,#9a5e1a); }
+.r1 .pod-blk { background: linear-gradient(180deg,#fef3c7,#fde68a); height: 80px; }
+.r2 .pod-blk { background: linear-gradient(180deg,#f1f5f9,#e2e8f0); height: 60px; }
+.r3 .pod-blk { background: linear-gradient(180deg,#fff7ed,#fed7aa); height: 44px; }
+.rank-list { display: flex; flex-direction: column; gap: 7px; }
+.rank-row  { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; font-size: .84rem; }
+.rank-row.r1 { background: #fffbeb; } .rank-row.r2 { background: #f8fafc; } .rank-row.r3 { background: #fff7ed; }
+.rank-row .rname { flex: 1; font-weight: 600; color: #1e293b; }
+.rank-row .rval  { font-weight: 800; color: #0ea5e9; }
+.footer { text-align: center; margin-top: 22px; color: #cbd5e1; font-size: .73rem; }
+.yr-records { margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+.yr-rec-title { font-size: .67rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+.yr-rec-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.yr-rec-year { font-size: .72rem; font-weight: 700; color: #94a3b8; width: 34px; flex-shrink: 0; }
+.yr-rec-bar-wrap { flex: 1; height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden; }
+.yr-rec-bar { height: 100%; border-radius: 99px; }
+.yr-rec-time { font-size: .78rem; font-weight: 800; color: #0f172a; width: 36px; text-align: right; flex-shrink: 0; }
+.yr-rec-name { font-size: .68rem; color: #94a3b8; flex-shrink: 0; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.yr-rec-row.this-yr .yr-rec-year { color: #0ea5e9; font-size: .78rem; }
+.yr-rec-row.this-yr .yr-rec-time { color: #0ea5e9; }
+.yr-rec-row.this-yr .yr-rec-name { color: #334155; font-weight: 600; }
+.yr-rec-row.best-yr .yr-rec-time { color: #f59e0b; }
+.yr-rec-row.best-yr .yr-rec-year { color: #f59e0b; }
+.landmark-section { background: white; border-radius: 18px; padding: 22px; box-shadow: 0 1px 4px rgba(0,0,0,.07); border: 1px solid #f1f5f9; margin-top: 16px; }
+.lm-card-title { font-size: .76rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 14px; }
+.lm-switcher { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+.lm-btn { padding: 7px 14px; border-radius: 20px; border: 1.5px solid #cbd5e1; background: white; cursor: pointer; font-size: .75rem; font-weight: 600; color: #64748b; transition: all .2s; white-space: nowrap; }
+.lm-btn.active { background: #0ea5e9; border-color: transparent; color: white; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
+.lm-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f8fafc; }
+.lm-row:last-child { border-bottom: none; }
+.lm-name { min-width: 118px; max-width: 140px; font-size: .82rem; font-weight: 600; color: #334155; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lm-meters { font-size: .72rem; color: #94a3b8; width: 54px; flex-shrink: 0; text-align: right; }
+.lm-icons { display: flex; gap: 4px; flex-wrap: wrap; align-items: flex-end; flex: 1; min-height: 50px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="stair-deco">
+      <div class="stair-step" style="width:8px;height:8px"></div>
+      <div class="stair-step" style="width:8px;height:16px"></div>
+      <div class="stair-step" style="width:8px;height:24px"></div>
+      <div class="stair-step" style="width:8px;height:32px"></div>
+      <div class="stair-step" style="width:8px;height:40px"></div>
+    </div>
+    <h1>Květnová výzva — po schodech</h1>
+    <p>Celkové metry · Počty výstupů · Nejrychlejší časy</p>
+  </div>
+  <div class="year-tabs">
+    <button class="year-tab" data-year="2025" onclick="setYear(2025)"><span class="yr">2025</span><span class="inf">21. patro · 71 m</span></button>
+    <button class="year-tab active" data-year="2026" onclick="setYear(2026)"><span class="yr">2026</span><span class="inf">23. patro · 76 m</span></button>
+  </div>
+  <div id="main"></div>
+</div>
+<script>
+/* ── Embedded data — regenerated daily by Cowork scheduler ── */
+const REFRESHED = '2026-05-21';
+
+// [name, seconds]  — 2025 (21. patro, 71 m)
+const D25 = [
+['Adam Bufka',284],['David Kocman',188],['Eva Adlerová',228],
+['David Kocman',163],['Jakub Kmeť',106],['Dominik Borbuliak',301],
+['Zbyněk Sailer',280],['Libor Tesařík',300],['Zbyněk Sailer',243],
+['Adam Bufka',230],['Markéta Holopová',300],['David Kocman',147],
+['Milan Dvořák',306],['Luboš Bednář',230],['Zbyněk Sailer',230],
+['Jakub Kmeť',275.18],['Marek Klučka',240.18],['Marek Hampl',123.35],
+['Tomáš Mácha',213.33],['Markéta Holopová',330],['Markéta Holopová',288],
+['Zbyněk Sailer',200],['Libor Tesařík',300],['Adam Bufka',267],
+['Jakub Kmeť',270],['Eva Adlerová',267],['Eva Adlerová',276],
+['Jan Kincl',213],['Jan Kincl',325],['Jan Kincl',260],
+['David Kocman',151],['Eva Adlerová',217],['Markéta Holopová',250],
+['David Kocman',123.23],['Adam Bufka',256],['Luboš Bednář',255],
+['David Kocman',132],['Marek Hampl',114.38],['David Kocman',215],
+['Josef Starý',294],['Milan Dvořák',243],['Milan Dvořák',292],
+['Eva Adlerová',231],['Eva Adlerová',249],['Eva Adlerová',247],
+['Marek Hampl',291],['David Kocman',184],['Eva Adlerová',247],
+['Eva Adlerová',291],['Natália Slancová',261],['Natália Slancová',295],
+['Eva Adlerová',156],['Zbyněk Sailer',206],['Marek Hampl',113.59],
+['Eva Adlerová',288],['Eva Adlerová',304],['Věra Špičáková',304],
+['Josef Starý',121.59],['Michael Koch',269],['David Kocman',179],
+['Milan Dvořák',162],['Zbyněk Sailer',185],['Věra Špičáková',300],
+['Věra Špičáková',300],['Věra Špičáková',304],['Markéta Holopová',220],
+['David Kocman',178],['Libor Tesařík',270],['Libor Tesařík',295],
+['Peter Nagy',270],['Jan Busínský',206],['Eva Adlerová',306],
+['Zbyněk Sailer',206],['Martin Drab',319],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Eva Adlerová',300.53],['Vojtěch Hanuš',206],['Pavla Hrabcova',165],
+['Eva Adlerová',250],['Jan Busínský',215],['Věra Špičáková',338],
+['Luboš Bednář',124],['Eva Adlerová',203],['Tomáš Kadleček',170],
+['David Kocman',180],['Natália Slancová',186],['Jaroslav Fabian',260],
+['Eva Adlerová',265],['Natália Slancová',284],['David Kocman',156],
+['David Kocman',151],['Jan Kincl',241],['Jan Kincl',270],
+['Tomáš Kadleček',210],['Tomáš Kadleček',210],['David Kocman',164],
+['Marek Hampl',110.45],['Jakub Vykydal',232],['David Kocman',300],
+['Milan Dvořák',116],['Zbyněk Sailer',108],['Timotej Hajzuš',109.04],
+['Timotej Hajzuš',230],['Věra Špičáková',300],['Věra Špičáková',227],
+['David Kocman',118],['Jakub Kmeť',97],['Eva Adlerová',279],
+['Eva Adlerová',278],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Jan Busínský',193],['Josef Starý',119.27],['Erika Čvandová',321],
+['Luboš Bednář',110.56],['Tomáš Kadleček',300],['Tomáš Kadleček',94.5]
+];
+
+// [name, seconds]  — 2026 (23. patro, 76 m)
+const D26 = [
+['Zbyněk Sailer',307],['Anna Jůzová',305],['Linda Dolanská',309],
+['Vojtěch Ettler',239],['Eva Adlerová',243],['Věra Špičáková',310],
+['Jan Busínský',234],['Jakub Šmerda',269],['Natália Slancová',249],
+['Anna Jůzová',225],['Jana Bartošová',216],['Jakub Kmeť',115],
+['Markéta Holopová',294],['Anna Jůzová',223],['Eva Adlerová',273],
+['Jakub Šmerda',173],['David Kocman',210],['David Kocman',215],
+['David Kocman',215],['Věra Špičáková',199],['Eva Adlerová',203],
+['Jana Jedelská',302],['Anna Jůzová',210],['Eva Adlerová',177],
+['Marek Hampl',161],['Vojtěch Ettler',206],['Jana Bartošová',204],
+['Eva Adlerová',328],['Kuba V.',301],['Kuba V.',310],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Josef Starý',337],['Zbyněk Sailer',266],['Jana Bartošová',330],
+['Adam Bufka',337],['Jakub Šmerda',267],['Eva Adlerová',350],
+['Jakub Kmeť',340],['Eva Adlerová',348],['Adam Bufka',283],
+['Anna Jůzová',300],['David Kocman',240],['David Kocman',240],
+['David Kocman',240],['Eva Adlerová',322],['Věra Špičáková',291],
+['Jakub Šmerda',300],['Věra Špičáková',195],['Anna Jůzová',228],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Jan Kincl',235],['Eva Adlerová',287],['Jan Busínský',224],
+['Tomáš Kadleček',300],['Michaela Marčeková',350],['Peter Nagy',256],
+['Jana Bartošová',186],['Anna Jůzová',197],['David Kocman',210],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Lukáš Šejba',300]
+];
+
+/* ── Config ── */
+const META = {
+  2025: { floor:21, meters:71, data: D25 },
+  2026: { floor:23, meters:76, data: D26 }
+};
+let currentYear = 2026;
+
+/* ── Landmark config ── */
+const LANDMARKS = {
+  sumava: {
+    name: 'Šumavská Tower A', short: 'Šumavská (81 m)', height: 81,
+    color: '#0ea5e9', colorDark: '#0284c7', vw: 40,
+    tpl: `<!-- legs -->
+<polygon points="2,100 12,42 18,42 10,100" fill="C1"/>
+<polygon points="38,100 28,42 22,42 30,100" fill="C1"/>
+<!-- horizontal braces on legs -->
+<line x1="4" y1="89" x2="36" y2="89" stroke="C2" stroke-width="1.4" stroke-linecap="round"/>
+<line x1="6.5" y1="76" x2="33.5" y2="76" stroke="C2" stroke-width="1.3" stroke-linecap="round"/>
+<line x1="9" y1="63" x2="31" y2="63" stroke="C2" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="11" y1="52" x2="29" y2="52" stroke="C2" stroke-width="1.1" stroke-linecap="round"/>
+<!-- platform ring -->
+<rect x="10" y="39" width="20" height="3" rx="1.5" fill="C1"/>
+<!-- main shaft -->
+<rect x="16" y="18" width="8" height="21" fill="C1"/>
+<!-- upper thin mast -->
+<rect x="18" y="5" width="4" height="13" fill="C1"/>
+<!-- tip needle -->
+<line x1="20" y1="0" x2="20" y2="5" stroke="C1" stroke-width="2.5" stroke-linecap="round"/>`
+  },
+  eiffel: {
+    name: 'Eiffelova věž', short: 'Eiffelova věž (330 m)', height: 330,
+    color: '#8b5cf6', colorDark: '#7c3aed', vw: 50,
+    tpl: `<!-- base legs -->
+<polygon points="0,100 12,66 21,66 10,100" fill="C1"/>
+<polygon points="50,100 38,66 29,66 40,100" fill="C1"/>
+<!-- base cross-braces -->
+<line x1="2" y1="94" x2="48" y2="94" stroke="C2" stroke-width="1.5" stroke-linecap="round"/>
+<line x1="4.5" y1="87" x2="45.5" y2="87" stroke="C2" stroke-width="1.3" stroke-linecap="round"/>
+<line x1="7" y1="80" x2="43" y2="80" stroke="C2" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="9" y1="74" x2="41" y2="74" stroke="C2" stroke-width="1.1" stroke-linecap="round"/>
+<line x1="10.5" y1="68" x2="39.5" y2="68" stroke="C2" stroke-width="1" stroke-linecap="round"/>
+<!-- first platform -->
+<rect x="10" y="63" width="30" height="3" rx="1.5" fill="C1"/>
+<!-- mid legs -->
+<polygon points="11,63 17,44 23,44 16,63" fill="C1"/>
+<polygon points="39,63 33,44 27,44 34,63" fill="C1"/>
+<!-- mid braces -->
+<line x1="12" y1="58" x2="38" y2="58" stroke="C2" stroke-width="1.2" stroke-linecap="round"/>
+<line x1="14" y1="53" x2="36" y2="53" stroke="C2" stroke-width="1.1" stroke-linecap="round"/>
+<line x1="15.5" y1="48" x2="34.5" y2="48" stroke="C2" stroke-width="1" stroke-linecap="round"/>
+<!-- second platform -->
+<rect x="15" y="43" width="20" height="2.5" rx="1" fill="C1"/>
+<!-- upper section -->
+<polygon points="16,43 21,27 29,27 34,43" fill="C1"/>
+<!-- upper braces -->
+<line x1="17" y1="39" x2="33" y2="39" stroke="C2" stroke-width="1.1" stroke-linecap="round"/>
+<line x1="18.5" y1="33" x2="31.5" y2="33" stroke="C2" stroke-width="1" stroke-linecap="round"/>
+<!-- third platform -->
+<rect x="20" y="25" width="10" height="2.5" rx="1" fill="C1"/>
+<!-- spire base box -->
+<rect x="23" y="21" width="4" height="4" fill="C1"/>
+<!-- spire triangle -->
+<polygon points="23,21 27,21 25,10" fill="C1"/>
+<!-- antenna tip -->
+<line x1="25" y1="10" x2="25" y2="0" stroke="C1" stroke-width="1.8" stroke-linecap="round"/>`
+  },
+  burj: {
+    name: 'Burj Khalifa', short: 'Burj Khalifa (828 m)', height: 828,
+    color: '#f59e0b', colorDark: '#d97706', vw: 40,
+    tpl: `<!-- wide base -->
+<polygon points="0,100 4,85 36,85 40,100" fill="C1"/>
+<!-- setbacks narrowing upward -->
+<polygon points="4,85 7,74 33,74 36,85" fill="C1"/>
+<polygon points="7,74 10,65 30,65 33,74" fill="C1"/>
+<polygon points="10,65 13,58 27,58 30,65" fill="C1"/>
+<polygon points="13,58 15.5,51 24.5,51 27,58" fill="C1"/>
+<polygon points="15.5,51 17.5,45 22.5,45 24.5,51" fill="C1"/>
+<polygon points="17.5,45 19,40 21,40 22.5,45" fill="C1"/>
+<!-- upper tower shaft -->
+<rect x="19" y="33" width="2" height="7" fill="C1"/>
+<!-- spire section 1 -->
+<polygon points="18.5,33 21.5,33 21.5,27 18.5,27" fill="C1"/>
+<!-- spire section 2 -->
+<polygon points="19,27 21,27 21,21 19,21" fill="C1"/>
+<!-- spire taper 1 -->
+<polygon points="19.3,21 20.7,21 20.5,15 19.5,15" fill="C1"/>
+<!-- spire taper 2 -->
+<polygon points="19.6,15 20.4,15 20.2,9 19.8,9" fill="C1"/>
+<!-- needle -->
+<line x1="20" y1="9" x2="20" y2="0" stroke="C1" stroke-width="1.8" stroke-linecap="round"/>
+<!-- setback accent lines -->
+<line x1="4" y1="85" x2="36" y2="85" stroke="C2" stroke-width="0.8"/>
+<line x1="7" y1="74" x2="33" y2="74" stroke="C2" stroke-width="0.8"/>
+<line x1="10" y1="65" x2="30" y2="65" stroke="C2" stroke-width="0.8"/>
+<line x1="13" y1="58" x2="27" y2="58" stroke="C2" stroke-width="0.7"/>
+<line x1="15.5" y1="51" x2="24.5" y2="51" stroke="C2" stroke-width="0.7"/>
+<line x1="17.5" y1="45" x2="22.5" y2="45" stroke="C2" stroke-width="0.6"/>
+<line x1="19" y1="40" x2="21" y2="40" stroke="C2" stroke-width="0.6"/>`
+  }
+};
+let currentLandmark = 'sumava';
+
+/* ── Helpers ── */
+function fmtSec(s) {
+  if (!s || s >= 99999) return '—';
+  return `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+}
+function fmtNum(n) { return n.toLocaleString('cs-CZ'); }
+function initials(name) { return name.split(' ').map(w=>w[0]||'').join('').slice(0,2).toUpperCase(); }
+function firstName(name) { const f=name.split(' ')[0]; return f.length>10?f.slice(0,9)+'…':f; }
+
+/* ── Landmark helpers ── */
+function buildingIcon(lm, pct, uid) {
+  const H = 56;
+  const W = Math.round(H * lm.vw / 100);
+  const clipId = 'lc' + uid;
+  const p = Math.max(0, Math.min(1, pct));
+  const fillY = (100 * (1 - p)).toFixed(1);
+  const fillH = (100 - parseFloat(fillY) + 1).toFixed(1);
+  function tpl(c1, c2) { return lm.tpl.replace(/C1/g, c1).replace(/C2/g, c2); }
+  return `<svg viewBox="0 0 ${lm.vw} 100" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;overflow:visible">
+    <g>${tpl('#c8d4de', '#b0bdc8')}</g>
+    ${p > 0.001 ? `<clipPath id="${clipId}"><rect x="-1" y="${fillY}" width="${lm.vw+2}" height="${fillH}"/></clipPath><g clip-path="url(#${clipId})">${tpl(lm.color, lm.colorDark)}</g>` : ''}
+  </svg>`;
+}
+
+function landmarkPeople(data, metersPerClimb) {
+  const p = {};
+  for (const [name] of data) {
+    if (!p[name]) p[name] = { name, climbs: 0 };
+    p[name].climbs++;
+  }
+  return Object.values(p)
+    .map(x => ({ ...x, totalMeters: x.climbs * metersPerClimb }))
+    .sort((a, b) => b.totalMeters - a.totalMeters);
+}
+
+function renderLandmarks(year) {
+  const lm = LANDMARKS[currentLandmark];
+  const meta = META[year];
+  const people = landmarkPeople(meta.data, meta.meters);
+  const btns = Object.entries(LANDMARKS).map(([k, v]) =>
+    `<button class="lm-btn${k === currentLandmark ? ' active' : ''}" onclick="setLandmark('${k}')">${v.short}</button>`
+  ).join('');
+  const rows = people.map((p, pi) => {
+    const full = Math.floor(p.totalMeters / lm.height);
+    const partial = (p.totalMeters % lm.height) / lm.height;
+    let icons = '';
+    for (let i = 0; i < full; i++) icons += buildingIcon(lm, 1, `${pi}f${i}`);
+    if (partial > 0.001) icons += buildingIcon(lm, partial, `${pi}p`);
+    return `<div class="lm-row">
+      <div class="lm-name">${p.name}</div>
+      <div class="lm-meters">${p.totalMeters} m</div>
+      <div class="lm-icons">${icons}</div>
+    </div>`;
+  }).join('');
+  return `<div class="landmark-section">
+    <div class="lm-card-title">🏗️ Výška výstupů — porovnání se stavbami</div>
+    <div class="lm-switcher">${btns}</div>
+    ${rows}
+  </div>`;
+}
+
+function setLandmark(key) {
+  currentLandmark = key;
+  renderPage(currentYear);
+}
+
+/* ── Analytics ── */
+function analyse(rawData, year) {
+  const meta = META[year];
+  const people = {};
+  for (const [name, sec] of rawData) {
+    if (!people[name]) people[name] = { name, climbs:0, best:99999 };
+    people[name].climbs++;
+    if (sec < people[name].best) people[name].best = sec;
+  }
+  const arr = Object.values(people);
+  return {
+    total:       rawData.length,
+    unique:      arr.length,
+    totalMeters: rawData.length * meta.meters,
+    globalBest:  arr.reduce((mn,p) => p.best < mn ? p.best : mn, 99999),
+    topClimbs:   [...arr].sort((a,b)=>b.climbs-a.climbs).slice(0,3),
+    topSpeed:    [...arr].filter(p=>p.best<99999).sort((a,b)=>a.best-b.best).slice(0,3),
+  };
+}
+
+/* ── Render helpers ── */
+function podium(top3, valFn) {
+  const vis = [
+    top3[1]?{p:top3[1],r:2,h:60,m:'🥈'}:null,
+    top3[0]?{p:top3[0],r:1,h:80,m:'🥇'}:null,
+    top3[2]?{p:top3[2],r:3,h:44,m:'🥉'}:null,
+  ].filter(Boolean);
+  return `<div class="podium">${vis.map(v=>`
+    <div class="pod-slot r${v.r}">
+      <div class="pod-avatar">${initials(v.p.name)}</div>
+      <div class="pod-name">${firstName(v.p.name)}</div>
+      <div class="pod-val">${valFn(v.p)}</div>
+      <div class="pod-blk" style="height:${v.h}px">${v.m}</div>
+    </div>`).join('')}</div>`;
+}
+
+function everestSvg(totalMeters) {
+  const pct = Math.min(1, totalMeters / 8849);
+  const pctD = Math.round(pct * 100);
+  const fillH = Math.round(pct * 80);
+  const fillY = 88 - fillH;
+  const mtn = 'M50,8 L63,38 L71,32 L81,62 L89,57 L95,88 L5,88 L11,57 L19,62 L29,32 L37,38 Z';
+  return `<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;gap:4px;">
+    <svg width="72" height="96" viewBox="0 0 100 110" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="ev-clip"><rect x="0" y="${fillY}" width="100" height="${fillH+20}"/></clipPath></defs>
+      <path d="${mtn}" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="${mtn}" fill="rgba(255,255,255,0.55)" clip-path="url(#ev-clip)"/>
+      <path d="M50,8 L59,27 L50,22 L41,27 Z" fill="rgba(255,255,255,0.92)"/>
+      <line x1="2" y1="${fillY}" x2="98" y2="${fillY}" stroke="rgba(255,255,255,0.6)" stroke-width="1" stroke-dasharray="4 3"/>
+    </svg>
+    <div style="color:rgba(255,255,255,0.95);font-size:.82rem;font-weight:800;line-height:1;">${pctD}%</div>
+    <div style="color:rgba(255,255,255,0.6);font-size:.65rem;font-weight:500;text-align:center;line-height:1.3;">z Mt. Everestu<br/>(8 849 m)</div>
+  </div>`;
+}
+
+function challengeProgress() {
+  const now = new Date(), start = new Date('2026-05-01'), end = new Date('2026-05-31');
+  const total = Math.round((end-start)/86400000)+1;
+  const elapsed = Math.max(0, Math.round((now-start)/86400000));
+  const daysLeft = Math.max(0, Math.round((end-now)/86400000));
+  const pct = Math.min(100, Math.round(elapsed/total*100));
+  const label = daysLeft===0 ? 'Výzva skončila!' : `${daysLeft} dní do konce výzvy`;
+  return `<div class="progress-bar-wrap">
+    <div class="progress-header">
+      <span class="progress-title">📅 Průběh výzvy — květen 2026</span>
+      <span class="progress-days">${label}</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+  </div>`;
+}
+
+/* ── Main render ── */
+function renderPage(year) {
+  const s = analyse(META[year].data, year);
+  const meta = META[year];
+  const MED = ['🥇','🥈','🥉'], RCL = ['r1','r2','r3'];
+  const kmVal = (s.totalMeters/1000).toFixed(2).replace('.',',');
+  const heroSub = `${fmtNum(s.total)} výstupů × ${meta.meters} m (${meta.floor}. patro)`;
+
+  document.getElementById('main').innerHTML = `
+    <div class="hero-kpi">
+      <div class="hero-icon">📐</div>
+      <div class="hero-text">
+        <div class="hero-value">${fmtNum(s.totalMeters)} m</div>
+        <div class="hero-label">Celkem metrů vyšplháno v roce ${year}</div>
+        <div class="hero-sub">${heroSub} &nbsp;·&nbsp; ${kmVal} km</div>
+      </div>
+      ${year===2026 ? everestSvg(s.totalMeters) : ''}
+    </div>
+    ${year===2026 ? challengeProgress() : ''}
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">${fmtNum(s.total)}</div><div class="stat-lbl">📋 výstupů</div></div>
+      <div class="stat"><div class="stat-num">${s.unique}</div><div class="stat-lbl">👥 účastníků</div></div>
+      <div class="stat"><div class="stat-num">${fmtSec(s.globalBest)}</div><div class="stat-lbl">⚡ rekord</div></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">🏋️ Nejvíce výstupů</div>
+        ${podium(s.topClimbs, p=>`${p.climbs}×`)}
+        <div class="rank-list">${s.topClimbs.map((p,i)=>`
+          <div class="rank-row ${RCL[i]}"><span>${MED[i]}</span><span class="rname">${p.name}</span><span class="rval">${p.climbs}×</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ Nejrychlejší čas</div>
+        ${podium(s.topSpeed, p=>fmtSec(p.best))}
+        <div class="rank-list">${s.topSpeed.map((p,i)=>`
+          <div class="rank-row ${RCL[i]}"><span>${MED[i]}</span><span class="rname">${p.name}</span><span class="rval">${fmtSec(p.best)}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    ${year===2026 ? renderLandmarks(year) : ''}
+    <div class="footer">Data ze dne: ${REFRESHED} &nbsp;·&nbsp; Automaticky obnovováno každé ráno</div>`;
+}
+
+function setYear(y) {
+  currentYear = y;
+  document.querySelectorAll('.year-tab').forEach(t => t.classList.toggle('active', parseInt(t.dataset.year)===y));
+  renderPage(y);
+}
+
+renderPage(currentYear);
+</script>
+</body>
+</html>
