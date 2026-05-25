@@ -20,6 +20,9 @@ body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background
 .year-tab .inf { font-size: .72rem; color: #94a3b8; display: block; font-weight: 500; }
 .year-tab.active { background: linear-gradient(135deg,#0ea5e9,#0284c7); border-color: transparent; color: white; box-shadow: 0 4px 16px rgba(14,165,233,.38); }
 .year-tab.active .inf { color: rgba(255,255,255,.78); }
+.gender-filter { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+.gender-btn { padding: 7px 20px; border-radius: 50px; border: 1.5px solid #cbd5e1; background: white; cursor: pointer; font-size: .82rem; font-weight: 600; color: #64748b; transition: all .2s; }
+.gender-btn.active { background: #0ea5e9; border-color: transparent; color: white; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
 .hero-kpi { background: linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%); border-radius: 20px; padding: 24px 28px; margin-bottom: 16px; display: flex; align-items: center; gap: 20px; box-shadow: 0 6px 24px rgba(14,165,233,.28); color: white; position: relative; overflow: hidden; }
 .hero-kpi::after { content: '↑'; position: absolute; right: 24px; font-size: 6rem; font-weight: 900; opacity: .08; top: -10px; line-height: 1; }
 .hero-icon { font-size: 2.6rem; flex-shrink: 0; }
@@ -101,11 +104,16 @@ body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background
     <button class="year-tab" data-year="2025" onclick="setYear(2025)"><span class="yr">2025</span><span class="inf">21. patro · 71 m</span></button>
     <button class="year-tab active" data-year="2026" onclick="setYear(2026)"><span class="yr">2026</span><span class="inf">23. patro · 76 m</span></button>
   </div>
+  <div class="gender-filter" id="gender-filter">
+    <button class="gender-btn active" onclick="setGender('all')">👥 Všichni</button>
+    <button class="gender-btn" onclick="setGender('m')">♂ Muži</button>
+    <button class="gender-btn" onclick="setGender('f')">♀ Ženy</button>
+  </div>
   <div id="main"></div>
 </div>
 <script>
 /* ── Embedded data — regenerated daily by Cowork scheduler ── */
-const REFRESHED = '2026-05-21';
+const REFRESHED = '2026-05-25';
 
 // [name, seconds]  — 2025 (21. patro, 71 m)
 const D25 = [
@@ -181,8 +189,14 @@ const D26 = [
 ['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
 ['Jan Kincl',235],['Eva Adlerová',287],['Jan Busínský',224],
 ['Tomáš Kadleček',300],['Michaela Marčeková',350],['Peter Nagy',256],
-['Jana Bartošová',186],['Anna Jůzová',197],['David Kocman',210],
-['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Lukáš Šejba',300]
+['Eva Adlerová',307],['Jana Bartošová',186],['Anna Jůzová',197],
+['David Kocman',210],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Lukáš Šejba',300],['Zbyněk Sailer',171],['Niels Verschatse',164],
+['Eva Adlerová',307],['David Kocman',190],['David Kocman',210],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Lukáš Šejba',300],
+['Radoslava Petreková',300],['David Kocman',300],['David Kocman',210],
+['Eva Adlerová',299],['David Kocman',210],['David Kocman',210],
+['Tomáš Kadleček',210]
 ];
 
 /* ── Config ── */
@@ -191,6 +205,24 @@ const META = {
   2026: { floor:23, meters:76, data: D26 }
 };
 let currentYear = 2026;
+
+/* ── Gender mapping — preserved by scheduler ── */
+const GENDER = {
+  'Adam Bufka':'m', 'David Kocman':'m', 'Jakub Kmeť':'m',
+  'Dominik Borbuliak':'m', 'Zbyněk Sailer':'m', 'Libor Tesařík':'m',
+  'Milan Dvořák':'m', 'Luboš Bednář':'m', 'Marek Klučka':'m',
+  'Marek Hampl':'m', 'Tomáš Mácha':'m', 'Jan Kincl':'m',
+  'Josef Starý':'m', 'Michael Koch':'m', 'Peter Nagy':'m',
+  'Jan Busínský':'m', 'Martin Drab':'m', 'Tomáš Kadleček':'m',
+  'Vojtěch Hanuš':'m', 'Jaroslav Fabian':'m', 'Jakub Vykydal':'m',
+  'Timotej Hajzuš':'m', 'Vojtěch Ettler':'m', 'Jakub Šmerda':'m',
+  'Kuba V.':'m', 'Lukáš Šejba':'m', 'Niels Verschatse':'m',
+  'Eva Adlerová':'f', 'Markéta Holopová':'f', 'Věra Špičáková':'f',
+  'Natália Slancová':'f', 'Pavla Hrabcova':'f', 'Erika Čvandová':'f',
+  'Anna Jůzová':'f', 'Linda Dolanská':'f', 'Jana Bartošová':'f',
+  'Jana Jedelská':'f', 'Michaela Marčeková':'f', 'Radoslava Petreková':'f'
+};
+let currentGender = 'all';
 
 /* ── Landmark config ── */
 const LANDMARKS = {
@@ -322,10 +354,10 @@ function landmarkPeople(data, metersPerClimb) {
     .sort((a, b) => b.totalMeters - a.totalMeters);
 }
 
-function renderLandmarks(year) {
+function renderLandmarks(year, data) {
   const lm = LANDMARKS[currentLandmark];
   const meta = META[year];
-  const people = landmarkPeople(meta.data, meta.meters);
+  const people = landmarkPeople(data, meta.meters);
   const btns = Object.entries(LANDMARKS).map(([k, v]) =>
     `<button class="lm-btn${k === currentLandmark ? ' active' : ''}" onclick="setLandmark('${k}')">${v.short}</button>`
   ).join('');
@@ -350,6 +382,14 @@ function renderLandmarks(year) {
 
 function setLandmark(key) {
   currentLandmark = key;
+  renderPage(currentYear);
+}
+
+function setGender(g) {
+  currentGender = g;
+  document.querySelectorAll('.gender-btn').forEach(b =>
+    b.classList.toggle('active', b.getAttribute('onclick') === `setGender('${g}')`)
+  );
   renderPage(currentYear);
 }
 
@@ -426,7 +466,9 @@ function challengeProgress() {
 
 /* ── Main render ── */
 function renderPage(year) {
-  const s = analyse(META[year].data, year);
+  const allData = META[year].data;
+  const filteredData = currentGender === 'all' ? allData : allData.filter(([name]) => GENDER[name] === currentGender);
+  const s = analyse(filteredData, year);
   const meta = META[year];
   const MED = ['🥇','🥈','🥉'], RCL = ['r1','r2','r3'];
   const kmVal = (s.totalMeters/1000).toFixed(2).replace('.',',');
@@ -464,7 +506,7 @@ function renderPage(year) {
         </div>
       </div>
     </div>
-    ${year===2026 ? renderLandmarks(year) : ''}
+    ${year===2026 ? renderLandmarks(year, filteredData) : ''}
     <div class="footer">Data ze dne: ${REFRESHED} &nbsp;·&nbsp; Automaticky obnovováno každé ráno</div>`;
 }
 
