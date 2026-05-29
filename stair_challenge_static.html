@@ -61,6 +61,9 @@ body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background
 .rank-row.r1 { background: #fffbeb; } .rank-row.r2 { background: #f8fafc; } .rank-row.r3 { background: #fff7ed; }
 .rank-row .rname { flex: 1; font-weight: 600; color: #1e293b; }
 .rank-row .rval  { font-weight: 800; color: #0ea5e9; }
+.congrats-banner { background: linear-gradient(135deg,#fef3c7 0%,#fde68a 100%); border: 2px solid #f59e0b; border-radius: 18px; padding: 18px 24px; margin-bottom: 16px; text-align: center; box-shadow: 0 4px 16px rgba(245,158,11,.22); }
+.congrats-banner .cb-emoji { font-size: 2rem; line-height: 1; margin-bottom: 6px; }
+.congrats-banner .cb-text { font-size: 1.05rem; font-weight: 800; color: #92400e; line-height: 1.35; }
 .footer { text-align: center; margin-top: 22px; color: #cbd5e1; font-size: .73rem; }
 .yr-records { margin-top: 14px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
 .yr-rec-title { font-size: .67rem; font-weight: 700; color: #cbd5e1; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
@@ -113,7 +116,7 @@ body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background
 </div>
 <script>
 /* ── Embedded data — regenerated daily by Cowork scheduler ── */
-const REFRESHED = '2026-05-28';
+const REFRESHED = '2026-05-29';
 
 // [name, seconds]  — 2025 (21. patro, 71 m)
 const D25 = [
@@ -215,7 +218,11 @@ const D26 = [
 ['David Kocman',153],['Libor Tesařík',160],['Marek Hampl',132],
 ['Věra Špičáková',310],['Natália Slancová',212],
 ['Vojtěch Hanuš',154],['Vojtěch Ettler',191],['David Miller',4.25],
-['Eva Adlerová',235],['Niels Verschate',159]
+['Eva Adlerová',235],['Niels Verschate',159],
+['Tomáš Kadleček',300],['Tomáš Kadleček',300],['Tomáš Kadleček',300],
+['Milan Dvořák',325],['Jakub Kyselý',160],['Michael Koch',258],
+['Jaroslav Fabian',330],['David Kocman',240],['David Kocman',240],
+['Tomáš Kadleček',300]
 ];
 
 /* ── Config ── */
@@ -236,7 +243,7 @@ const GENDER = {
   'Vojtěch Hanuš':'m', 'Jaroslav Fabian':'m', 'Jakub Vykydal':'m',
   'Timotej Hajzuš':'m', 'Vojtěch Ettler':'m', 'Jakub Šmerda':'m',
   'Kuba V.':'m', 'Lukáš Šejba':'m', 'Niels Verschatse':'m', 'Jiří Klimeš':'m',
-  'Martin Dráb':'m',
+  'Martin Dráb':'m', 'Jakub Kyselý':'m',
   'Eva Adlerová':'f', 'Markéta Holopová':'f', 'Věra Špičáková':'f',
   'Natália Slancová':'f', 'Pavla Hrabcova':'f', 'Pavla Hrabcová':'f', 'Erika Čvandová':'f',
   'Anna Jůzová':'f', 'Linda Dolanská':'f', 'Jana Bartošová':'f',
@@ -508,6 +515,7 @@ function renderPage(year) {
       ${year===2026 ? everestSvg(s.totalMeters) : ''}
     </div>
     ${year===2026 ? challengeProgress() : ''}
+    ${year===2026 && s.totalMeters >= 8849 ? `<div class="congrats-banner"><div class="cb-emoji">🏔️🎉</div><div class="cb-text">Zdolali jsme Mt. Everest, juchúúú. Díky za pomoc.</div></div>` : ''}
     <div class="stats-row">
       <div class="stat"><div class="stat-num">${fmtNum(s.total)}</div><div class="stat-lbl">📋 výstupů</div></div>
       <div class="stat"><div class="stat-num">${s.unique}</div><div class="stat-lbl">👥 účastníků</div></div>
